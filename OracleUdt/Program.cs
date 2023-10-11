@@ -4,11 +4,18 @@ namespace ConsoleApp
 {
     class Program
     {
-        private static async Task<SdoPoint> GetSdoPoint(OracleDataReader reader, int ordinal)
+        private static async Task<SdoPoint> GetSdoPointAsync(OracleDataReader reader, int ordinal)
         {
             return await reader.IsDBNullAsync(ordinal, _cts.Token).ConfigureAwait(false)
                 ? SdoPoint.Null
                 : await reader.GetFieldValueAsync<SdoPoint>(ordinal, _cts.Token).ConfigureAwait(false);
+        }
+
+        private static SdoPoint GetSdoPoint(OracleDataReader reader, int ordinal)
+        {
+            return reader.IsDBNull(ordinal)
+                ? SdoPoint.Null
+                : reader.GetFieldValue<SdoPoint>(ordinal);
         }
 
         private static readonly CancellationTokenSource _cts = new();
@@ -42,7 +49,8 @@ namespace ConsoleApp
                 using var reader = await cmd.ExecuteReaderAsync(_cts.Token).ConfigureAwait(false);
                 while (await reader.ReadAsync(_cts.Token).ConfigureAwait(false))
                 {
-                    var geom = await GetSdoPoint(reader, 0).ConfigureAwait(false);
+                    var geom = await GetSdoPointAsync(reader, 0).ConfigureAwait(false);
+                    //var geom = GetSdoPoint(reader, 0);
                     Console.WriteLine(geom.ToString());
                 }
             }
