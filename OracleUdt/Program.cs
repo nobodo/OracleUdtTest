@@ -37,6 +37,9 @@ namespace ConsoleApp
             }
             ConnectionString = args[0];
 
+            OracleConfiguration.TraceFileLocation = "/tmp/odb.net";
+            OracleConfiguration.TraceLevel = 7;
+
             try
             {
                 var dbConnection = new OracleConnection(ConnectionString)
